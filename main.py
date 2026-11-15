@@ -5,73 +5,69 @@
 # Descripción: Gestión de clientes, servicios y reservas
 # =====================================================
 
-# Importar herramientas para trabajar con clases abstractas
+#Importo las herramientas que necesito para crear clases abstractas.
 from abc import ABC, abstractmethod
 
-# Importar herramientas para manejar fechas
+#Importo la herramienta que utilizo para registrar fechas y horas.
 from datetime import datetime
 
-# Importar herramientas para registrar eventos y errores
+#Importo logging para guardar los eventos y errores del sistema.
 import logging
 
 
 
 
-# Configurar el archivo donde se guardarán los eventos y errores
+#Configuro el archivo en el que guardo los eventos y errores del sistema.
 logging.basicConfig(
-    filename="software_fj.log",  # Nombre del archivo de registro
-    level=logging.INFO,          # Registrar información, advertencias y errores
+    filename="software_fj.log",  #aqui Indico el nombre del archivo donde guardo los registros.
+    level=logging.INFO,          #aqui Establezco el nivel de información que quiero registrar.
     format="%(asctime)s - %(levelname)s - %(message)s",
     encoding="utf-8"
 )
 
-# Registrar el inicio del sistema
+#aqui Registro en el archivo el inicio del sistema.
 logging.info("Sistema Software FJ iniciado correctamente")
 
-# Mostrar un mensaje de confirmación
+#Muestro un mensaje para confirmar que el sistema está preparado.
 print("Sistema de gestión Software FJ preparado")
 
 
 
 
-# =====================================================
-# EXCEPCIONES PERSONALIZADAS DEL SISTEMA
-# =====================================================
 
-# Excepción para datos incorrectos o incompletos
-class DatosInvalidosError(Exception):
+#EXCEPCIONES PERSONALIZADAS DEL SISTEMA
+
+
+
+class DatosInvalidosError(Exception):                  #aqui Creo esta excepción para identificar datos incorrectos o incompletos.
     pass
 
-
-# Excepción cuando un servicio no está disponible
+                                                       #Creo esta excepción para indicar que un servicio no está disponible.
 class ServicioNoDisponibleError(Exception):
     pass
 
 
-# Excepción cuando una reserva presenta algún problema
-class ReservaInvalidaError(Exception):
+class ReservaInvalidaError(Exception):                 #Creo esta excepción para controlar los problemas que se presentan al crear o gestionar una reserva.
     pass
 
 
-# Excepción para operaciones que no están permitidas
-class OperacionNoPermitidaError(Exception):
+class OperacionNoPermitidaError(Exception):            #Creo esta excepción para controlar las operaciones que no están permitidas.
     pass
 
 
 
 
-# =====================================================
-# CLASE ABSTRACTA ENTIDAD
-# =====================================================
+#CLASE ABSTRACTA ENTIDAD
 
-# Crear una clase abstracta para las entidades del sistema
+
+#Creo una clase abstracta que sirve como base para las entidades del sistema.
 class Entidad(ABC):
 
-    # Método constructor de la clase
+    #Defino el constructor que inicializa los datos de la entidad.
     def __init__(self, identificador):
         self._identificador = identificador
 
-    # Método abstracto para mostrar información
+    #aqui Establezco un método abstracto que las clases hijas deben implementar para mostrar información.
     @abstractmethod
     def mostrar_informacion(self):
         pass
@@ -80,36 +76,36 @@ class Entidad(ABC):
 
 
 
-# =====================================================
-# CLASE CLIENTE
-# =====================================================
+
+#CLASE CLIENTE
+
 
 class Cliente(Entidad):
 
-    # Constructor de la clase Cliente
+    #aqui se define el constructor con los datos que necesito para crear un cliente.
     def __init__(self, identificador, nombre, correo, telefono):
 
-        # Validar que los datos sean obligatorios
+        #Verifico que el cliente tenga todos los datos obligatorios.
         if not nombre or not correo or not telefono:
             raise DatosInvalidosError(
                 "Todos los datos del cliente son obligatorios"
             )
 
-        # Validar el formato básico del correo
+        #Compruebo que el correo tenga los caracteres básicos de una dirección válida.
         if "@" not in correo or "." not in correo:
             raise DatosInvalidosError(
                 "El correo electrónico no es válido"
             )
 
-        # Inicializar la clase padre
+        #Llamo al constructor de Entidad para guardar el identificador heredado.
         super().__init__(identificador)
 
-        # Guardar los datos personales de forma privada
+        #Guardo los datos personales como atributos privados para proteger su acceso directo.
         self.__nombre = nombre.strip()
         self.__correo = correo.strip()
         self.__telefono = telefono.strip()
 
-    # Métodos para consultar los datos privados
+    #Creo propiedades que me permiten consultar los datos privados del cliente.
     @property
     def nombre(self):
         return self.__nombre
@@ -122,7 +118,7 @@ class Cliente(Entidad):
     def telefono(self):
         return self.__telefono
 
-    # Mostrar la información del cliente
+    #aqui Construyo y devuelvo un texto con la información del cliente.
     def mostrar_informacion(self):
         return (
             f"ID: {self._identificador} | "
@@ -132,65 +128,71 @@ class Cliente(Entidad):
         )
 
 
-# =====================================================
+
 # CLASE ABSTRACTA SERVICIO
-# =====================================================
+
 
 class Servicio(Entidad):
 
-    # Constructor de la clase Servicio
+    #se define el constructor con la información general de cada servicio.
     def __init__(self, identificador, nombre, tarifa_base, disponible=True):
 
-        # Validar el nombre del servicio
+        # Verifico que el servicio tenga un nombre.
         if not nombre:
             raise DatosInvalidosError("El nombre es obligatorio")
 
-        # Validar la tarifa
+        #Compruebo que la tarifa sea numérica y mayor que cero.
         if not isinstance(tarifa_base, (int, float)) or isinstance(tarifa_base, bool) or tarifa_base <= 0:
             raise DatosInvalidosError("La tarifa debe ser mayor que cero")
 
+        #Inicializo el identificador heredado desde la clase Entidad.
         super().__init__(identificador)
 
+        #Guardo los datos generales del servicio.
         self.nombre = nombre
         self.tarifa_base = tarifa_base
         self.disponible = disponible
 
-    # Método abstracto para calcular costos
+    #Establezco el método que cada tipo de servicio implementa para calcular su costo.
     @abstractmethod
     def calcular_costo(self, duracion, descuento=0, impuesto=0.19):
         pass
 
-    # Método abstracto para describir el servicio
+    #Establezco el método que cada servicio implementa para generar su descripción.
     @abstractmethod
     def describir(self):
         pass
 
-    # Método abstracto para validar parámetros
+    #Establezco el método que cada servicio implementa para validar su duración.
     @abstractmethod
     def validar_parametros(self, duracion):
         pass
 
-    # Método para calcular el costo con descuento e impuesto
+    #Calculo el valor final aplicando primero el descuento y después el impuesto.
     def calcular_total(self, duracion, descuento=0, impuesto=0.19):
 
-        # Validar los porcentajes
+        #Verifico que los porcentajes de descuento e impuesto estén dentro del rango permitido.
         if not 0 <= descuento <= 1:
             raise DatosInvalidosError("El descuento debe estar entre 0 y 1")
 
         if not 0 <= impuesto <= 1:
             raise DatosInvalidosError("El impuesto debe estar entre 0 y 1")
 
+        #Multiplico la tarifa base por la duración para obtener el subtotal.
         subtotal = self.tarifa_base * duracion
+        #Calculo cuánto dinero representa el descuento aplicado.
         valor_descuento = subtotal * descuento
+        #Resto el descuento al subtotal para obtener el valor antes de impuestos.
         total_con_descuento = subtotal - valor_descuento
+        #Aplico el impuesto al valor que ya tiene descontado el descuento.
         total = total_con_descuento * (1 + impuesto)
 
         return total
 
 
-# =====================================================
-# SERVICIO 1: RESERVA DE SALAS
-# =====================================================
+
+#SERVICIO 1: RESERVA DE SALAS
+
 
 class ReservaSala(Servicio):
 
@@ -203,17 +205,17 @@ class ReservaSala(Servicio):
 
         self.capacidad = capacidad
 
-    # Validar la duración de la reserva
+    #Compruebo que la duración de la reserva de sala sea un número positivo.
     def validar_parametros(self, duracion):
         if not isinstance(duracion, (int, float)) or isinstance(duracion, bool) or duracion <= 0:
             raise DatosInvalidosError("Las horas deben ser mayores que cero")
 
-    # Calcular el costo por horas
+    #Calculo el costo de la sala según las horas solicitadas.
     def calcular_costo(self, duracion, descuento=0, impuesto=0.19):
         self.validar_parametros(duracion)
         return self.calcular_total(duracion, descuento, impuesto)
 
-    # Describir el servicio
+    #Construyo una descripción con el nombre de la sala y su capacidad.
     def describir(self):
         return f"Sala: {self.nombre} | Capacidad: {self.capacidad} personas"
 
@@ -221,9 +223,9 @@ class ReservaSala(Servicio):
         return self.describir()
 
 
-# =====================================================
-# SERVICIO 2: ALQUILER DE EQUIPOS
-# =====================================================
+
+#SERVICIO 2: ALQUILER DE EQUIPOS
+
 
 class AlquilerEquipo(Servicio):
 
@@ -236,17 +238,17 @@ class AlquilerEquipo(Servicio):
 
         self.tipo_equipo = tipo_equipo
 
-    # Validar la cantidad de días
+    #Compruebo que la cantidad de días del alquiler sea positiva.
     def validar_parametros(self, duracion):
         if not isinstance(duracion, (int, float)) or isinstance(duracion, bool) or duracion <= 0:
             raise DatosInvalidosError("Los días deben ser mayores que cero")
 
-    # Calcular el costo del alquiler
+    #Calculo el costo del equipo según los días de alquiler.
     def calcular_costo(self, duracion, descuento=0, impuesto=0.19):
         self.validar_parametros(duracion)
         return self.calcular_total(duracion, descuento, impuesto)
 
-    # Describir el servicio
+    #Construyo una descripción con el nombre de la sala y su capacidad.
     def describir(self):
         return f"Equipo: {self.nombre} | Tipo: {self.tipo_equipo}"
 
@@ -254,9 +256,9 @@ class AlquilerEquipo(Servicio):
         return self.describir()
 
 
-# =====================================================
-# SERVICIO 3: ASESORÍAS ESPECIALIZADAS
-# =====================================================
+
+#SERVICIO 3: ASESORÍAS ESPECIALIZADAS
+
 
 class Asesoria(Servicio):
 
@@ -269,17 +271,17 @@ class Asesoria(Servicio):
 
         self.especialidad = especialidad
 
-    # Validar la duración de la asesoría
+    #Compruebo que la duración de la asesoría sea positiva.
     def validar_parametros(self, duracion):
         if not isinstance(duracion, (int, float)) or isinstance(duracion, bool) or duracion <= 0:
             raise DatosInvalidosError("Las horas deben ser mayores que cero")
 
-    # Calcular el costo de la asesoría
+    #Calculo el costo de la asesoría según las horas solicitadas.
     def calcular_costo(self, duracion, descuento=0, impuesto=0.19):
         self.validar_parametros(duracion)
         return self.calcular_total(duracion, descuento, impuesto)
 
-    # Describir el servicio
+    #Construyo una descripción con el nombre de la sala y su capacidad.
     def describir(self):
         return f"Asesoría: {self.nombre} | Especialidad: {self.especialidad}"
 
@@ -287,39 +289,40 @@ class Asesoria(Servicio):
         return self.describir()
 
 
-# =====================================================
-# CLASE RESERVA
-# =====================================================
+
+#CLASE RESERVA
 
 class Reserva:
 
     def __init__(self, identificador, cliente, servicio, duracion):
 
-        # Verificar que se haya seleccionado un cliente
+        #Verifico que el objeto recibido corresponda a un cliente válido.
         if not isinstance(cliente, Cliente):
             raise ReservaInvalidaError("Debe seleccionar un cliente válido")
 
-        # Verificar que se haya seleccionado un servicio
+        #Verifico que el objeto recibido corresponda a un servicio válido.
         if not isinstance(servicio, Servicio):
             raise ReservaInvalidaError("Debe seleccionar un servicio válido")
 
-        # Verificar la disponibilidad del servicio
+        #Compruebo que el servicio esté disponible antes de crear la reserva.
         if not servicio.disponible:
             raise ServicioNoDisponibleError("El servicio no está disponible")
 
-        # Validar la duración
+        #Valido la duración usando las reglas definidas para el tipo de servicio.
         servicio.validar_parametros(duracion)
 
         self.identificador = identificador
         self.cliente = cliente
         self.servicio = servicio
         self.duracion = duracion
+        #Inicio cada reserva con estado Pendiente hasta que sea confirmada.
         self.estado = "Pendiente"
+        #Guardo la fecha y hora exactas en las que creo la reserva.
         self.fecha = datetime.now()
 
         logging.info(f"Reserva {identificador} creada correctamente")
 
-    # Confirmar una reserva
+    #Confirmo la reserva únicamente cuando su estado es Pendiente.
     def confirmar(self):
 
         if self.estado != "Pendiente":
@@ -327,10 +330,11 @@ class Reserva:
                 "Solo se pueden confirmar reservas pendientes"
             )
 
+        #Actualizo el estado para indicar que la reserva fue confirmada.
         self.estado = "Confirmada"
         logging.info(f"Reserva {self.identificador} confirmada")
 
-    # Cancelar una reserva
+    #Cancelo la reserva cuando se encuentra Pendiente o Confirmada.
     def cancelar(self):
 
         if self.estado not in ["Pendiente", "Confirmada"]:
@@ -338,10 +342,11 @@ class Reserva:
                 "No se puede cancelar esta reserva"
             )
 
+        #Actualizo el estado para dejar constancia de la cancelación.
         self.estado = "Cancelada"
         logging.info(f"Reserva {self.identificador} cancelada")
 
-    # Procesar una reserva y calcular su costo
+    #Proceso la reserva confirmada y calculo el costo que debe pagar el cliente.
     def procesar(self, descuento=0, impuesto=0.19):
 
         if self.estado != "Confirmada":
@@ -357,6 +362,7 @@ class Reserva:
             if not isinstance(total, (int, float)) or total < 0:
                 raise DatosInvalidosError("El cálculo del costo no es válido")
 
+            #Cambio el estado cuando el cálculo termina correctamente.
             self.estado = "Procesada"
 
             logging.info(
@@ -366,12 +372,13 @@ class Reserva:
             return total
 
         except Exception as error:
+            #Registro el error completo y conservo su causa al lanzar la excepción propia.
             logging.exception("Error durante el procesamiento de la reserva")
             raise ReservaInvalidaError(
                 "No fue posible procesar la reserva"
             ) from error
 
-    # Mostrar la información de la reserva
+    #Devuelvo un resumen con los datos principales de la reserva.
     def mostrar_informacion(self):
 
         return (
@@ -383,20 +390,22 @@ class Reserva:
         )
 
 
-# =====================================================
-# CLASE ADMINISTRADORA DEL SISTEMA
-# =====================================================
+
+#CLASE ADMINISTRADORA DEL SISTEMA
 
 class SistemaSoftwareFJ:
 
     def __init__(self):
 
-        # Listas internas para almacenar los objetos
+        #Creo listas internas para almacenar los clientes, servicios y reservas registrados.
+        #Inicializo la lista donde almaceno los objetos Cliente.
         self.clientes = []
+        #Inicializo la lista donde almaceno los objetos Servicio.
         self.servicios = []
+        #Inicializo la lista donde almaceno los objetos Reserva.
         self.reservas = []
 
-    # Registrar un cliente
+    #Registro un cliente después de verificar su tipo y que su identificador no esté repetido.
     def registrar_cliente(self, cliente):
 
         if not isinstance(cliente, Cliente):
@@ -406,11 +415,12 @@ class SistemaSoftwareFJ:
             if cliente_existente._identificador == cliente._identificador:
                 raise DatosInvalidosError("El identificador del cliente ya existe")
 
+        #Agrego el cliente a la lista después de superar las validaciones.
         self.clientes.append(cliente)
 
         logging.info(f"Cliente registrado: {cliente.nombre}")
 
-    # Registrar un servicio
+    #Registro un servicio después de verificar su tipo y que su identificador no esté repetido.
     def registrar_servicio(self, servicio):
 
         if not isinstance(servicio, Servicio):
@@ -420,15 +430,17 @@ class SistemaSoftwareFJ:
             if servicio_existente._identificador == servicio._identificador:
                 raise DatosInvalidosError("El identificador del servicio ya existe")
 
+        #Agrego el servicio a la lista después de superar las validaciones.
         self.servicios.append(servicio)
 
         logging.info(f"Servicio registrado: {servicio.nombre}")
 
-    # Crear una reserva
+    #Creo la reserva, la agrego a la lista y controlo los errores que puedan presentarse.
     def crear_reserva(self, identificador, cliente, servicio, duracion):
 
         try:
             reserva = Reserva(identificador, cliente, servicio, duracion)
+            # Guardo la reserva creada en la lista del sistema.
             self.reservas.append(reserva)
 
             logging.info(f"Reserva {identificador} agregada al sistema")
@@ -436,35 +448,36 @@ class SistemaSoftwareFJ:
             return reserva
 
         except Exception as error:
+            # Registro el problema y lo convierto en una excepción propia de reservas.
             logging.exception("Error al crear una reserva")
             raise ReservaInvalidaError(
                 "No se pudo crear la reserva"
             ) from error
 
-    # Mostrar los clientes registrados
+    #Recorro la lista y muestro la información de cada cliente registrado.
     def mostrar_clientes(self):
 
         for cliente in self.clientes:
             print(cliente.mostrar_informacion())
 
-    # Mostrar los servicios registrados
+    #Recorro la lista y muestro la información de cada servicio registrado.
     def mostrar_servicios(self):
 
         for servicio in self.servicios:
             print(servicio.mostrar_informacion())
 
-    # Mostrar las reservas registradas
+    #Recorro la lista y muestro la información de cada reserva registrada.
     def mostrar_reservas(self):
 
         for reserva in self.reservas:
             print(reserva.mostrar_informacion())
 
 
-# =====================================================
-# PRUEBAS DEL SISTEMA SOFTWARE FJ
-# =====================================================
 
-# Crear el objeto principal del sistema
+#PRUEBAS DEL SISTEMA SOFTWARE FJ
+
+
+#Creo el objeto principal que administra las listas y operaciones del sistema.
 sistema = SistemaSoftwareFJ()
 
 print("\n========================================")
@@ -472,7 +485,7 @@ print(" PRUEBAS DEL SISTEMA SOFTWARE FJ")
 print("========================================")
 
 
-# OPERACIÓN 1: Registrar un cliente válido
+#En esta prueba registro un cliente con datos válidos.
 print("\nOPERACIÓN 1: Registro de cliente válido")
 
 try:
@@ -489,7 +502,7 @@ except DatosInvalidosError as error:
     print("No se pudo registrar el cliente:", error)
 
 
-# OPERACIÓN 2: Registrar un cliente con correo incorrecto
+#En esta prueba intento registrar un cliente con un correo incorrecto.
 print("\nOPERACIÓN 2: Registro de cliente con correo incorrecto")
 
 try:
@@ -504,7 +517,7 @@ except DatosInvalidosError as error:
     print("Error controlado:", error)
 
 
-# OPERACIÓN 3: Registrar un cliente con datos incompletos
+#en esta prueba intento registrar un cliente al que le falta un dato obligatorio.
 print("\nOPERACIÓN 3: Registro de cliente con datos incompletos")
 
 try:
@@ -516,7 +529,7 @@ except DatosInvalidosError as error:
     print("Error controlado:", error)
 
 
-# OPERACIÓN 4: Crear un servicio de reserva de sala
+#en esta prueba creo y registro un servicio de reserva de sala.
 print("\nOPERACIÓN 4: Crear servicio de sala")
 
 try:
@@ -531,7 +544,7 @@ except DatosInvalidosError as error:
     print("Error:", error)
 
 
-# OPERACIÓN 5: Crear un servicio de alquiler de equipo
+#En esta prueba creo y registro un servicio de alquiler de equipo.
 print("\nOPERACIÓN 5: Crear servicio de alquiler de equipo")
 
 try:
@@ -548,7 +561,7 @@ except DatosInvalidosError as error:
     print("Error:", error)
 
 
-# OPERACIÓN 6: Crear un servicio de asesoría
+#En esta prueba creo y registro un servicio de asesoría especializada.
 print("\nOPERACIÓN 6: Crear servicio de asesoría")
 
 try:
@@ -565,7 +578,7 @@ except DatosInvalidosError as error:
     print("Error:", error)
 
 
-# OPERACIÓN 7: Intentar crear un servicio con tarifa inválida
+#En esta prueba intento crear un servicio con una tarifa negativa para comprobar la validación.
 print("\nOPERACIÓN 7: Crear servicio con tarifa incorrecta")
 
 try:
@@ -580,7 +593,7 @@ except DatosInvalidosError as error:
     print("Error controlado:", error)
 
 
-# OPERACIÓN 8: Crear una reserva válida
+#En esta prueba creo una reserva válida con el cliente y la sala registrados.
 print("\nOPERACIÓN 8: Crear reserva válida")
 
 try:
@@ -595,7 +608,7 @@ except ReservaInvalidaError as error:
     print("Error:", error)
 
 
-# OPERACIÓN 9: Confirmar la reserva
+#En esta prueba confirmo la reserva que quedó en estado Pendiente.
 print("\nOPERACIÓN 9: Confirmar reserva")
 
 try:
@@ -608,7 +621,7 @@ except OperacionNoPermitidaError as error:
     print("Error:", error)
 
 
-# OPERACIÓN 10: Procesar la reserva y calcular su costo
+#En esta prueba proceso la reserva confirmada y obtengo su costo total.
 print("\nOPERACIÓN 10: Procesar reserva")
 
 try:
@@ -621,7 +634,7 @@ except ReservaInvalidaError as error:
     print("Error:", error)
 
 
-# OPERACIÓN 11: Intentar cancelar una reserva ya procesada
+#En esta prueba intento cancelar una reserva procesada para comprobar que el sistema lo impide.
 print("\nOPERACIÓN 11: Cancelar reserva procesada")
 
 try:
@@ -632,7 +645,7 @@ except OperacionNoPermitidaError as error:
     print("Error controlado:", error)
 
 
-# OPERACIÓN 12: Intentar crear una reserva con servicio no disponible
+#En esta prueba intento reservar una sala que se encuentra marcada como no disponible.
 print("\nOPERACIÓN 12: Reserva de servicio no disponible")
 
 try:
@@ -651,7 +664,7 @@ except ReservaInvalidaError as error:
     print("Error controlado:", error)
 
 
-# OPERACIÓN 13: Probar el uso de descuento
+#En esta prueba calculo el costo de la sala aplicando un descuento del 10 % y el impuesto.
 print("\nOPERACIÓN 13: Calcular costo con descuento")
 
 try:
@@ -666,7 +679,7 @@ except DatosInvalidosError as error:
     print("Error:", error)
 
 
-# OPERACIÓN 14: Intentar calcular un costo con duración inválida
+#En esta prueba ingreso una duración negativa para comprobar que el sistema la rechaza.
 print("\nOPERACIÓN 14: Cálculo con duración incorrecta")
 
 try:
@@ -677,9 +690,9 @@ except DatosInvalidosError as error:
     print("Error controlado:", error)
 
 
-# =====================================================
-# RESUMEN FINAL DEL SISTEMA
-# =====================================================
+
+#RESUMEN FINAL DEL SISTEMA
+
 
 print("\n========================================")
 print(" RESUMEN DEL SISTEMA")
@@ -695,9 +708,9 @@ print("\nRESERVAS REGISTRADAS:")
 sistema.mostrar_reservas()
 
 
-# =====================================================
-# DEMOSTRACIÓN DE TRY, EXCEPT, ELSE Y FINALLY
-# =====================================================
+
+#DEMOSTRACIÓN DE TRY, EXCEPT, ELSE Y FINALLY
+
 
 print("\nPRUEBA DE MANEJO DE EXCEPCIONES")
 
@@ -710,14 +723,16 @@ except Exception as error:
     print("Se presentó un error:", error)
 
 else:
+    #Ejecuto este bloque solamente si la consulta no generó excepciones.
     print("Consulta realizada correctamente")
     print("Cantidad de clientes:", cantidad)
 
 finally:
+    #Ejecuto este bloque tanto si hubo error como si la consulta fue exitosa.
     print("Finalizó la consulta, el sistema continúa funcionando")
 
 
-# Registrar la finalización de las pruebas
+#Registro que todas las pruebas del sistema han finalizado.
 logging.info("Pruebas del sistema Software FJ finalizadas")
 
 print("\n========================================")

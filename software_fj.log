@@ -41,3 +41,46 @@ Traceback (most recent call last):
 ReservaInvalidaError: No se pudo crear la reserva
 2026-11-15 07:01:41,699 - ERROR - Operación 14: Los días deben ser mayores que cero
 2026-11-15 07:01:41,702 - INFO - Pruebas del sistema Software FJ finalizadas
+2026-11-15 07:49:04,589 - INFO - Sistema Software FJ iniciado correctamente
+2026-11-15 07:49:04,592 - INFO - Cliente registrado: Carlos Ramírez
+2026-11-15 07:49:04,592 - ERROR - Operación 2: El correo electrónico no es válido
+2026-11-15 07:49:04,592 - ERROR - Operación 3: Todos los datos del cliente son obligatorios
+2026-11-15 07:49:04,593 - INFO - Servicio registrado: Sala de reuniones
+2026-11-15 07:49:04,593 - INFO - Servicio registrado: Computador portátil
+2026-11-15 07:49:04,593 - INFO - Servicio registrado: Asesoría tecnológica
+2026-11-15 07:49:04,594 - ERROR - Operación 7: La tarifa debe ser mayor que cero
+2026-11-15 07:49:04,594 - INFO - Reserva 201 creada correctamente
+2026-11-15 07:49:04,594 - INFO - Reserva 201 agregada al sistema
+2026-11-15 07:49:04,594 - INFO - Reserva 201 confirmada
+2026-11-15 07:49:04,595 - INFO - Reserva 201 procesada. Total: 119000.0
+2026-11-15 07:49:04,595 - ERROR - Operación 11: No se puede cancelar esta reserva
+2026-11-15 07:49:04,595 - INFO - Servicio registrado: Sala ocupada
+2026-11-15 07:49:04,595 - ERROR - Error al crear una reserva
+Traceback (most recent call last):
+  File "C:\Users\ailat\OneDrive\UNAD\8. SEMESTRE\PROGRAMACION\FASE 4\SOFTWARE_FJ\main.py", line 442, in crear_reserva
+    reserva = Reserva(identificador, cliente, servicio, duracion)
+  File "C:\Users\ailat\OneDrive\UNAD\8. SEMESTRE\PROGRAMACION\FASE 4\SOFTWARE_FJ\main.py", line 309, in __init__
+    raise ServicioNoDisponibleError("El servicio no está disponible")
+ServicioNoDisponibleError: El servicio no está disponible
+2026-11-15 07:49:04,606 - ERROR - Operación 12: reserva no válida
+Traceback (most recent call last):
+  File "C:\Users\ailat\OneDrive\UNAD\8. SEMESTRE\PROGRAMACION\FASE 4\SOFTWARE_FJ\main.py", line 442, in crear_reserva
+    reserva = Reserva(identificador, cliente, servicio, duracion)
+  File "C:\Users\ailat\OneDrive\UNAD\8. SEMESTRE\PROGRAMACION\FASE 4\SOFTWARE_FJ\main.py", line 309, in __init__
+    raise ServicioNoDisponibleError("El servicio no está disponible")
+ServicioNoDisponibleError: El servicio no está disponible
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\ailat\OneDrive\UNAD\8. SEMESTRE\PROGRAMACION\FASE 4\SOFTWARE_FJ\main.py", line 658, in <module>
+    reserva2 = sistema.crear_reserva(
+        202, cliente1, sala_no_disponible, 2
+    )
+  File "C:\Users\ailat\OneDrive\UNAD\8. SEMESTRE\PROGRAMACION\FASE 4\SOFTWARE_FJ\main.py", line 453, in crear_reserva
+    raise ReservaInvalidaError(
+        "No se pudo crear la reserva"
+    ) from error
+ReservaInvalidaError: No se pudo crear la reserva
+2026-11-15 07:49:04,608 - ERROR - Operación 14: Los días deben ser mayores que cero
+2026-11-15 07:49:04,610 - INFO - Pruebas del sistema Software FJ finalizadas
